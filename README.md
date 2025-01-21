@@ -35,3 +35,21 @@ cd src/apps/desktop
 npm install
 npm run tauri
 ```
+
+## Screenshots
+
+![GUI example](assets/gui_example.png)
+
+The use of the ReactMarkdown component along with the Tailwind CSS typography prose style prettifies the output.
+
+![Model selection](assets/models_selection.png)
+
+The model selection drop-down allows choosing from the currently loaded models.
+
+![New session](assets/new_session.png)
+
+Click the "+" button to start a new chat session.
+
+![Context menu](assets/context_menu.png)
+
+The context menu allows for editing a session title or deleting a chat session you no longer need.
