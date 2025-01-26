@@ -8,6 +8,7 @@ use reqwest::Client;
 use futures_util::StreamExt;
 use serde::Serialize;
 use serde::Deserialize;
+use regex::Regex;
 
 #[derive(Serialize)]
 struct ChatSession {
@@ -289,7 +290,7 @@ async fn generate_session_title_with_ai(prompt: &str, model: &str) -> Result<Str
 
     let request_body = serde_json::json!({
         "model": model,
-        "prompt": format!("Generate a very short chat session title based on this prompt text: {}", prompt)
+        "prompt": format!("Generate a very short chat session title based on this prompt text, but without including any preceeding text: {}", prompt)
     });
 
     let response = client
@@ -323,7 +324,9 @@ async fn generate_session_title_with_ai(prompt: &str, model: &str) -> Result<Str
         }
     }
 
-    let title = full_response.trim_matches('"').to_string();
+    let re_think = Regex::new(r"(?s)^<think>.*?</think>(\s*)").unwrap();
+    let title = re_think.replace(&full_response, "").trim_matches('"').trim_matches('*').to_string();
+
     Ok(title)
 }
 
