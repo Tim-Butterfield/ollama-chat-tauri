@@ -290,7 +290,7 @@ async fn generate_session_title_with_ai(prompt: &str, model: &str) -> Result<Str
 
     let request_body = serde_json::json!({
         "model": model,
-        "prompt": format!("Generate a very short chat session title based on this prompt text, but without including any preceeding text: {}", prompt)
+        "prompt": format!("Given the prompt delimited by triple backticks, generate a summary title containing no more than 10 words.  Format the response as a simple text string.  Other than the title, do not include any other output.  Prompt text: ```{}```", prompt)
     });
 
     let response = client
@@ -374,58 +374,35 @@ async fn generate_chat(
         generation_state.cancellation_token = Some(CancellationToken::new());
         cancellation_token = generation_state.cancellation_token.clone().unwrap();
 
-        // Check if this is the first message in the session
         if generation_state.current_session_id.is_none() || generation_state.current_session_id == Some(-1) {
-            // Generate a session title using AI
             let generated_title = generate_session_title_with_ai(&prompt, &model)
                 .await
                 .map_err(|e| format!("Failed to generate session title: {}", e))?;
 
-            // Create or retrieve the session in the database
             let new_session_id = get_or_create_session(db_conn.inner(), &generated_title)
                 .await
                 .map_err(|e| format!("Failed to create or retrieve session: {}", e))?;
 
-            // Update the session ID in the state
             generation_state.current_session_id = Some(new_session_id);
         }
     }
 
     // Load previous chat history for context
-    let context = load_chat_history(state.clone(), db_conn.clone())
+    let mut messages = load_chat_history(state.clone(), db_conn.clone())
         .await
         .unwrap_or_else(|_| Vec::new());
 
-    let formatted_context: String = context
-        .iter()
-        .map(|entry| {
-            let default_value = serde_json::Value::String(String::from(""));
-    
-            let user = entry
-                .get("user_message")
-                .unwrap_or(&default_value)
-                .as_str()
-                .unwrap_or("");
-    
-            let ai = entry
-                .get("model_response")
-                .unwrap_or(&default_value)
-                .as_str()
-                .unwrap_or("");
-    
-            format!("User: {}\nAI: {}", user, ai)
-        })
-        .collect::<Vec<String>>()
-        .join("\n");
-
-    // Combine previous context with the new prompt
-    let combined_prompt = format!("{}\nUser: {}\nAI:", formatted_context, prompt);
+    // Add the new user prompt to the messages array
+    messages.push(serde_json::json!({
+        "role": "user",
+        "content": prompt
+    }));
 
     let session_id = {
-        let state_guard = state.lock().await; // Access the mutex
+        let state_guard = state.lock().await;
         state_guard.current_session_id.unwrap_or(-1)
     };
-    
+
     let mut ai_response = String::new();
 
     let generation_result: Result<(), String> = tokio::select! {
@@ -433,16 +410,14 @@ async fn generate_chat(
             let client = reqwest::Client::new();
 
             let response = client
-                .post("http://localhost:11434/api/generate")
+                .post("http://localhost:11434/api/chat")
                 .json(&serde_json::json!({
                     "model": model,
-                    "prompt": combined_prompt
+                    "messages": messages
                 }))
                 .send()
                 .await
-                .map_err(|e| {
-                    format!("Failed to make API call: {}", e)
-                })?;
+                .map_err(|e| format!("Failed to make API call: {}", e))?;
 
             if !response.status().is_success() {
                 return Err(format!("API call failed with status: {}", response.status()));
@@ -453,22 +428,18 @@ async fn generate_chat(
                 tokio::select! {
                     chunk = stream.next() => {
                         if let Some(chunk) = chunk {
-
                             let data = chunk.map_err(|e| e.to_string())?;
                             let text_chunk = String::from_utf8_lossy(&data);
-                    
-                            // Parse the JSON chunk to extract the "response" field
+
                             if let Ok(json) = serde_json::from_str::<serde_json::Value>(&text_chunk) {
-                                if let Some(text) = json.get("response").and_then(|r| r.as_str()) {
+                                if let Some(text) = json.get("message").and_then(|m| m.get("content")).and_then(|c| c.as_str()) {
                                     ai_response.push_str(text);
                                 }
-                    
-                                // Check if generation is done
+
                                 if json.get("done").and_then(|d| d.as_bool()).unwrap_or(false) {
                                     break;
                                 }
                             }
-
                         } else {
                             break;
                         }
@@ -492,11 +463,8 @@ async fn generate_chat(
 
     save_chat_history(prompt, ai_response.clone(), session_id, db_conn)
         .await
-        .map_err(|e| {
-            format!("Failed to save chat history: {}", e)
-        })?;
+        .map_err(|e| format!("Failed to save chat history: {}", e))?;
 
-    // Clear generation state
     let mut generation_state = state.lock().await;
     generation_state.is_running = false;
     generation_state.cancellation_token = None;
@@ -536,14 +504,14 @@ async fn load_chat_history(
                 let user_message: String = row.get(0)?;
                 let model_response: String = row.get(1)?;
 
-                // Return two JSON objects for user and AI
+                // Return two JSON objects for user and AI/assistant
                 Ok(vec![
                     serde_json::json!({
                         "role": "user",
                         "content": user_message
                     }),
                     serde_json::json!({
-                        "role": "ai",
+                        "role": "assistant",
                         "content": model_response
                     }),
                 ])
