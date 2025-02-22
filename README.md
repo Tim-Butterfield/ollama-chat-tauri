@@ -1,7 +1,7 @@
 
 # OllamaChat
 
-A fully offline, cross-platform chat application using **React.js**, **Tauri**, **Rust**, and **SQLite** for the desktop app.  
+Simple prototype/proof-of-concept for a fully offline, cross-platform AI chat application using **React.js**, **Tauri**, **Rust**, and **SQLite** for the desktop app.  
 The app integrates with a locally running Ollama API to retrieve models and generate responses.
 
 Caveat:
