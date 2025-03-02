@@ -39,9 +39,9 @@ pub fn init_db() -> Arc<Mutex<Connection>> {
     // Get the app data directory for the platform
     let base_dir = app_data_dir(&tauri::Config::default())
         .expect("Failed to retrieve application data directory")
-        .join("ollama-chat-tauri");
+        .join("OllamaChat");
 
-    let db_path: PathBuf = base_dir.join("ollama-chat-tauri.db");
+    let db_path: PathBuf = base_dir.join("OllamaChat.db");
 
     // Ensure the directory exists
     if let Some(parent) = db_path.parent() {
