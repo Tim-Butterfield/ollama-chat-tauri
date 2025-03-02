@@ -201,7 +201,7 @@ const ChatWindow = forwardRef(({ className, currentSessionId, refreshSessions, o
 
     return (
         <div
-            className="${className} w-full flex flex-col flex-grow overflow-y-auto h-full bg-white border shadow-lg p-4 box-border overflow-hidden"
+            className="${className} w-full flex flex-col flex-grow overflow-y-auto w-full h-full bg-white border shadow-lg p-4 box-border overflow-hidden"
         >
             {/* Model selection drop-down */}
             <div className="flex justify-between items-center mb-2">
@@ -228,7 +228,7 @@ const ChatWindow = forwardRef(({ className, currentSessionId, refreshSessions, o
             </div>
 
             {/* Chat history */}
-            <div className="w-full flex-grow overflow-y-auto p-2 border rounded-lg bg-gray-100 flex flex-col gap-2">
+            <div className="w-full flex-grow overflow-y-auto p-2 border rounded-lg bg-gray-100 flex flex-col gap-2 mb-2">
                 {chatHistory.length === 0 ? (
                     <div
                         className="self-start text-left mr-auto"
@@ -256,29 +256,41 @@ const ChatWindow = forwardRef(({ className, currentSessionId, refreshSessions, o
 
             <div ref={chatEndRef} />
 
-            {/* Input Area */}
-            <div className="flex pt-2 w-full border-t">
-                <input
-                    className="flex-grow p-2 border rounded-l-lg text-base"
-                    type="text"
+            <div className="flex items-end w-full gap-2">
+
+                {/* Input Area */}
+                <textarea
+                    className="flex-grow p-2 border rounded-l-lg text-base resize-none overflow-hidden"
                     value={userInput}
-                    onChange={(e) => setUserInput(e.target.value)}
+                    onChange={(e) => {
+                        setUserInput(e.target.value);
+                        e.target.style.height = "20px"; // Force reset to 1 row height
+                        e.target.style.height = `${Math.min(e.target.scrollHeight, 80)}px`;
+                    }}
                     placeholder="Type your message..."
                     disabled={loading}
+                    rows={1}
+                    wrap="soft"
+                    style={{ minHeight: "20px", maxHeight: "80px", lineHeight: "20px" }}
                     onKeyDown={(e) => {
-                        if (e.key === "Enter") sendMessage();
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                        }
                     }}
                 />
 
                 <button
-                    className="px-4 py-2 bg-blue-600 text-white rounded-r-lg hover:bg-blue-700"
+                    className="ml-2 px-4 py-2 bg-blue-500 text-white rounded-md h-full"
                     onClick={sendMessage}
                     disabled={loading} >
                     {loading ? "Generating..." : "Send"}
                 </button>
 
                 {loading && (
-                    <button onClick={handleAbort} style={{ marginLeft: "10px", color: "red" }}>
+                    <button
+                        className="text-red-500 text-sm flex items-center h-full"
+                        onClick={handleAbort}>
                         Abort
                     </button>
                 )}
