@@ -129,7 +129,7 @@ pub async fn process_chat_generation(
         .await
         .map_err(|e| format!("Failed to save user message: {}", e))?;
 
-    let mut messages = load_chat_history(state.clone(), db_conn.clone())
+    let messages = load_chat_history(state.clone(), db_conn.clone())
         .await
         .unwrap_or_else(|_| Vec::new());
 
