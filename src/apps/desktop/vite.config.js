@@ -7,6 +7,9 @@ export default defineConfig({
     port: 3000,  // ✅ Ensure this matches tauri.conf.json
   },
   build: {
-    outDir: 'dist'
+    outDir: 'dist',
+    // Tauri ships a modern system WebView, so target modern engines. This also
+    // avoids esbuild 0.28's unsupported destructuring downlevel for old Safari.
+    target: ['es2022', 'chrome105', 'safari15']
   }
 });
