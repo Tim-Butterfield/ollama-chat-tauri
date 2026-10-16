@@ -6,7 +6,6 @@ use rusqlite::{params, Connection, Result, OptionalExtension};
 use std::sync::Arc;
 use tokio::sync::Mutex;
 use tauri::State;
-use tauri::api::path::app_data_dir;
 use std::fs;
 use std::path::PathBuf;
 
@@ -36,8 +35,10 @@ pub struct ChatMessage {
 
 // Initialize SQLite Database
 pub fn init_db() -> Arc<Mutex<Connection>> {
-    // Get the app data directory for the platform
-    let base_dir = app_data_dir(&tauri::Config::default())
+    // Get the app data directory for the platform. This must stay the same
+    // location Tauri 1 used (platform data dir + "OllamaChat", no bundle
+    // identifier) so existing databases keep loading.
+    let base_dir = dirs::data_dir()
         .expect("Failed to retrieve application data directory")
         .join("OllamaChat");
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from "react";
-import { invoke } from "@tauri-apps/api/tauri";
+import { invoke } from "@tauri-apps/api/core";
 import ReactMarkdown from "react-markdown";
 
 const ChatWindow = forwardRef(({ className, currentSessionId, refreshSessions, onNewSession }, ref) => {

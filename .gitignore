@@ -19,6 +19,7 @@ pnpm-debug.log*
 
 # Tauri build artifacts
 /src/apps/desktop/src-tauri/target
+/src/apps/desktop/src-tauri/gen
 /src/apps/desktop/src/desktop//src-tauri/.cargo
 
 # Tauri lock files

@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 
 // Save window state
-fn save_window_state(window: &tauri::Window, conn: &Connection) -> rusqlite::Result<()> {
+fn save_window_state(window: &tauri::WebviewWindow, conn: &Connection) -> rusqlite::Result<()> {
     if let Ok(position) = window.outer_position() {
         db::update_config_value(conn, "window_x", &position.x.to_string())?;
         db::update_config_value(conn, "window_y", &position.y.to_string())?;
@@ -25,7 +25,7 @@ fn save_window_state(window: &tauri::Window, conn: &Connection) -> rusqlite::Res
 }
 
 // Load window state
-fn load_window_state(window: &tauri::Window, conn: &Connection) -> rusqlite::Result<()> {
+fn load_window_state(window: &tauri::WebviewWindow, conn: &Connection) -> rusqlite::Result<()> {
     let x = db::get_config_value(conn, "window_x")?.unwrap_or_else(|| "100".to_string()).parse().unwrap_or(100);
     let y = db::get_config_value(conn, "window_y")?.unwrap_or_else(|| "100".to_string()).parse().unwrap_or(100);
     let width = db::get_config_value(conn, "window_width")?.unwrap_or_else(|| "1600".to_string()).parse().unwrap_or(800);
@@ -49,7 +49,7 @@ fn main() {
         .manage(db_conn.clone())
         .manage(generation_state)
         .setup(move |app| {
-            let window = app.get_window("main").unwrap();
+            let window = app.get_webview_window("main").unwrap();
 
             // Clone before moving into the async block
             let window_clone_for_async = window.clone();

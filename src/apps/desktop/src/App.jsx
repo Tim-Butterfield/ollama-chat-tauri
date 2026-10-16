@@ -1,7 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 import ChatWindow from './components/ChatWindow';
 import SideBar from './components/SideBar';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 
 const App = () => {
   const chatWindowRef = useRef();

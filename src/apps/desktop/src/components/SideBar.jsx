@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { invoke } from '@tauri-apps/api/tauri';
+import { invoke } from '@tauri-apps/api/core';
 import newChatIcon from './assets/new_chat.png';
 
 const SideBar = ({ className, sessions, setSessions, onSessionSelect, currentSessionId, clearChat }) => {
