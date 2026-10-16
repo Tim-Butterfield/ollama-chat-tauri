@@ -95,7 +95,7 @@ const SideBar = ({ className, sessions, setSessions, onSessionSelect, currentSes
             <div className="flex justify-between items-center mb-4">
                 <h3 className="text-lg font-bold text-gray-800">Sessions</h3>
                 <button
-                    className="w-8 h-8 flex items-center justify-center hover:bg-gray-300 rounded hover:scale-110 transition-transform"
+                    className="w-8 h-8 flex items-center justify-center hover:bg-gray-300 rounded-sm hover:scale-110 transition-transform"
                 >
                     <img
                         src={newChatIcon}

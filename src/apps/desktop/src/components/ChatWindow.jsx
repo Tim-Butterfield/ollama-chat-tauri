@@ -201,7 +201,7 @@ const ChatWindow = forwardRef(({ className, currentSessionId, refreshSessions, o
 
     return (
         <div
-            className="${className} w-full flex flex-col flex-grow overflow-y-auto w-full h-full bg-white border shadow-lg p-4 box-border overflow-hidden"
+            className="${className} w-full flex flex-col grow overflow-y-auto w-full h-full bg-white border shadow-lg p-4 box-border overflow-hidden"
         >
             {/* Model selection drop-down */}
             <div className="flex justify-between items-center mb-2">
@@ -213,7 +213,7 @@ const ChatWindow = forwardRef(({ className, currentSessionId, refreshSessions, o
                     <select
                         id="model"
                         name="model"
-                        className="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        className="px-3 py-2 border border-gray-300 rounded-md shadow-xs focus:outline-hidden focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                         value={selectedModel}
                         onChange={handleModelChange}
                     >
@@ -228,7 +228,7 @@ const ChatWindow = forwardRef(({ className, currentSessionId, refreshSessions, o
             </div>
 
             {/* Chat history */}
-            <div className="w-full flex-grow overflow-y-auto p-2 border rounded-lg bg-gray-100 flex flex-col gap-2 mb-2">
+            <div className="w-full grow overflow-y-auto p-2 border rounded-lg bg-gray-100 flex flex-col gap-2 mb-2">
                 {chatHistory.length === 0 ? (
                     <div
                         className="self-start text-left mr-auto"
@@ -260,7 +260,7 @@ const ChatWindow = forwardRef(({ className, currentSessionId, refreshSessions, o
 
                 {/* Input Area */}
                 <textarea
-                    className="flex-grow p-2 border rounded-l-lg text-base resize-none overflow-hidden"
+                    className="grow p-2 border rounded-l-lg text-base resize-none overflow-hidden"
                     value={userInput}
                     onChange={(e) => {
                         setUserInput(e.target.value);

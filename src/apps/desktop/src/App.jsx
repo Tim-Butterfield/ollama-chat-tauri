@@ -60,7 +60,7 @@ const App = () => {
         currentSessionId={currentSessionId}
         clearChat={clearChat} />
       <ChatWindow
-        className="flex-grow w-2/3 max-w-[70%]"
+        className="grow w-2/3 max-w-[70%]"
         ref={chatWindowRef}
         currentSessionId={currentSessionId}
         refreshSessions={loadCurrentSession}
